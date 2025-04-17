@@ -1,7 +1,8 @@
 from django.urls import path, reverse
 from .views import (
     RoomListView, RoomDetailView, ReservationCreateView, 
-    ReservationListView, ReservationUpdateView, ReservationDeleteView, home
+    ReservationListView, ReservationUpdateView, ReservationDeleteView,
+    MyReservationListView, ReservationStatusUpdateView, home
 )
 
 app_name = 'reservation'
@@ -21,4 +22,8 @@ urlpatterns = [
     path('reservations/<int:pk>/edit/', ReservationUpdateView.as_view(), name='reservation_edit'),
     # URL pattern for deleting an existing reservation
     path('reservations/<int:pk>/delete/', ReservationDeleteView.as_view(), name='reservation_delete'),
+    # URL pattern for viewing user's reservations
+    path('my-reservations/', MyReservationListView.as_view(), name='my_reservations'),
+    # URL pattern for updating reservation status
+    path('reservations/<int:pk>/status/', ReservationStatusUpdateView.as_view(), name='reservation_status_update'),
 ] 

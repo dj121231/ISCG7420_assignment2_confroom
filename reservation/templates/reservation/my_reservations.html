@@ -1,0 +1,61 @@
+{% extends 'reservation/base.html' %} {% block title %}My Reservations{%
+endblock %} {% block content %}
+<h1>My Reservations</h1>
+
+<div class="reservation-list">
+  {% if reservations %} {% for reservation in reservations %}
+  <div class="card">
+    <div class="reservation-title">{{ reservation.title }}</div>
+    <div class="reservation-room">📍 {{ reservation.room.name }}</div>
+    <div class="reservation-time">📅 {{ reservation.date|date:'F j, Y' }}</div>
+    <div class="reservation-time">
+      ⏰ {{ reservation.start_time|time:'g:i A' }} - {{
+      reservation.end_time|time:'g:i A' }}
+    </div>
+    <div class="status status-{{ reservation.status }}">
+      {{ reservation.get_status_display }}
+    </div>
+    <div class="action-buttons">
+      {% if reservation.status == 'pending' %}
+      <form
+        method="post"
+        action="{% url 'reservation:reservation_status_update' reservation.pk %}"
+        style="display: inline"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="status" value="confirmed" />
+        <button type="submit" class="button primary-button">Confirm</button>
+      </form>
+      <form
+        method="post"
+        action="{% url 'reservation:reservation_status_update' reservation.pk %}"
+        style="display: inline"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="status" value="cancelled" />
+        <button type="submit" class="button delete-button">Cancel</button>
+      </form>
+      {% endif %}
+      <a
+        href="{% url 'reservation:reservation_edit' reservation.pk %}"
+        class="button edit-button"
+        >Edit</a
+      >
+      <a
+        href="{% url 'reservation:reservation_delete' reservation.pk %}"
+        class="button delete-button"
+        >Delete</a
+      >
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <div class="empty-message">You haven't made any reservations yet.</div>
+  {% endif %}
+</div>
+
+<div class="action-buttons">
+  <a href="{% url 'reservation:room_list' %}" class="button primary-button"
+    >View Available Rooms</a
+  >
+</div>
+{% endblock %}

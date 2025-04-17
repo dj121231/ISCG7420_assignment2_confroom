@@ -1,9 +1,10 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseBadRequest
 from .models import Room, Reservation
 
 # Create your views here.
@@ -319,3 +320,70 @@ class ReservationDeleteView(LoginRequiredMixin, DeleteView):
             str: The URL to redirect to
         """
         return reverse('reservation:room_detail', kwargs={'pk': self.object.room.pk})
+
+class MyReservationListView(LoginRequiredMixin, ListView):
+    """
+    A view that displays all reservations created by the currently logged-in user.
+    
+    Attributes:
+        model: The Reservation model to be used
+        template_name: The template to render the list
+        context_object_name: The name of the object list in the template
+    """
+    model = Reservation
+    template_name = 'reservation/my_reservations.html'
+    context_object_name = 'reservations'
+    
+    def get_queryset(self):
+        """
+        Returns a queryset of reservations created by the current user,
+        ordered by date and start time.
+        
+        Returns:
+            QuerySet: A filtered queryset containing the user's reservations
+        """
+        return Reservation.objects.filter(
+            user=self.request.user
+        ).order_by('date', 'start_time')
+
+class ReservationStatusUpdateView(LoginRequiredMixin, View):
+    """
+    A view that handles updating the status of a reservation.
+    Only accepts POST requests and requires user authentication.
+    """
+    http_method_names = ['post']
+    
+    def post(self, request, pk):
+        """
+        Updates the status of a reservation if the user has permission
+        and the new status is valid.
+        
+        Args:
+            request: The HTTP request object
+            pk: The primary key of the reservation
+            
+        Returns:
+            HttpResponseRedirect: Redirects to the referring page or reservation list
+        """
+        reservation = get_object_or_404(Reservation, pk=pk)
+        
+        # Check if user has permission to update this reservation
+        if reservation.user != request.user:
+            raise PermissionDenied("You don't have permission to update this reservation.")
+        
+        # Get the new status from POST data
+        new_status = request.POST.get('status')
+        
+        # Validate the new status
+        if new_status not in ['confirmed', 'cancelled']:
+            return HttpResponseBadRequest("Invalid status value.")
+        
+        # Update the reservation status
+        reservation.status = new_status
+        reservation.save()
+        
+        # Redirect to the referring page or reservation list
+        redirect_url = request.META.get('HTTP_REFERER')
+        if not redirect_url:
+            redirect_url = reverse('reservation:my_reservations')
+        return HttpResponseRedirect(redirect_url)

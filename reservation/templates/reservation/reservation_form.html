@@ -1,131 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reserve Room - {{ room.name }}</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .reservation-form {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 30px;
-        margin: 20px 0;
-        background-color: #f9f9f9;
-      }
-      .form-group {
-        margin-bottom: 20px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #333;
-      }
-      input[type="text"],
-      input[type="date"],
-      input[type="time"],
-      textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      textarea {
-        height: 100px;
-        resize: vertical;
-      }
-      .submit-button {
-        background-color: #4caf50;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      .submit-button:hover {
-        background-color: #45a049;
-      }
-      .back-link {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #f44336;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-      }
-      .back-link:hover {
-        background-color: #d32f2f;
-      }
-      .error-message {
-        color: #f44336;
-        margin-top: 5px;
-        font-size: 14px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="reservation-form">
-      <h1>Reserve {{ room.name }}</h1>
+{% extends 'reservation/base.html' %} {% block title %}{% if form.instance.pk
+%}Edit{% else %}Create{% endif %} Reservation{% endblock %} {% block content %}
+<h1>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Reservation</h1>
 
-      <form method="post">
-        {% csrf_token %}
-
-        <div class="form-group">
-          <label for="id_title">Title:</label>
-          <input type="text" name="title" id="id_title" required />
-          {% if form.title.errors %}
-          <div class="error-message">{{ form.title.errors }}</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_description">Description:</label>
-          <textarea name="description" id="id_description"></textarea>
-          {% if form.description.errors %}
-          <div class="error-message">{{ form.description.errors }}</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_date">Date:</label>
-          <input type="date" name="date" id="id_date" required />
-          {% if form.date.errors %}
-          <div class="error-message">{{ form.date.errors }}</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_start_time">Start Time:</label>
-          <input type="time" name="start_time" id="id_start_time" required />
-          {% if form.start_time.errors %}
-          <div class="error-message">{{ form.start_time.errors }}</div>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_end_time">End Time:</label>
-          <input type="time" name="end_time" id="id_end_time" required />
-          {% if form.end_time.errors %}
-          <div class="error-message">{{ form.end_time.errors }}</div>
-          {% endif %}
-        </div>
-
-        <button type="submit" class="submit-button">Create Reservation</button>
-      </form>
-
-      <a href="{% url 'reservation:room_detail' room.pk %}" class="back-link"
-        >← Back to Room Details</a
+<div class="card">
+  <form method="post">
+    {% csrf_token %} {% for field in form %}
+    <div class="form-field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }} {% if field.errors %}
+      <div class="error-message">{{ field.errors }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <div class="action-buttons">
+      <button type="submit" class="button primary-button">Save</button>
+      <a
+        href="{% url 'reservation:room_detail' room.pk %}"
+        class="button cancel-button"
+        >Cancel</a
       >
     </div>
-  </body>
-</html>
+  </form>
+</div>
+{% endblock %}
