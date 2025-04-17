@@ -1,94 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Conference Room Booking{% endblock %}</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .button {
-        display: inline-block;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 1em;
-        text-align: center;
-      }
-      .button:hover {
-        opacity: 0.9;
-      }
-      .primary-button {
-        background-color: #4caf50;
-        color: white;
-      }
-      .edit-button {
-        background-color: #007bff;
-        color: white;
-      }
-      .delete-button {
-        background-color: #dc3545;
-        color: white;
-      }
-      .cancel-button {
-        background-color: #6c757d;
-        color: white;
-      }
-      .card {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 20px;
-        margin-bottom: 15px;
-        background-color: #f9f9f9;
-      }
-      .status {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 3px;
-        font-size: 0.9em;
-        margin-top: 10px;
-      }
-      .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-      }
-      .status-confirmed {
-        background-color: #d4edda;
-        color: #155724;
-      }
-      .status-cancelled {
-        background-color: #f8d7da;
-        color: #721c24;
-      }
-      .warning-message {
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        padding: 10px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-      }
-      .empty-message {
-        text-align: center;
-        color: #666;
-        margin: 40px 0;
-        font-style: italic;
-      }
-      .action-buttons {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1em;
+            text-align: center;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .primary-button {
+            background-color: #4caf50;
+            color: white;
+        }
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .warning-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .empty-message {
+            text-align: center;
+            color: #666;
+            margin: 40px 0;
+            font-style: italic;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .top-nav a {
+            margin-left: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+        .top-nav a:hover {
+            background-color: #e0e0e0;
+        }
+        .top-nav span {
+            margin-right: 10px;
+        }
     </style>
-  </head>
-  <body>
-    {% block content %} {% endblock %}
-  </body>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="top-nav">
+        {% if user.is_authenticated %}
+            <span>Welcome, {{ user.username }}!</span>
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </div>
+    
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
 </html>

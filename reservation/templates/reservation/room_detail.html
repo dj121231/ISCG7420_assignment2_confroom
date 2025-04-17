@@ -6,14 +6,17 @@ Details{% endblock %} {% block content %}
   <p><strong>Capacity:</strong> {{ room.capacity }} people</p>
   <p><strong>Location:</strong> {{ room.location }}</p>
   <p><strong>Description:</strong> {{ room.description }}</p>
-</div>
-
-<div class="action-buttons">
-  <a
-    href="{% url 'reservation:reservation_create' room.pk %}"
-    class="button primary-button"
-    >Make a Reservation</a
-  >
+  
+  {% if user.is_authenticated %}
+    <a
+      href="{% url 'reservation:reservation_create' room.pk %}"
+      class="button primary-button"
+      >Make a Reservation</a
+    >
+  {% else %}
+    <p class="warning-message">You need to <a href="{% url 'login' %}">login</a> to make a reservation.</p>
+  {% endif %}
+  
   <a
     href="{% url 'reservation:reservation_list' room.pk %}"
     class="button edit-button"
