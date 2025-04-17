@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 from .models import Room, Reservation
 
 # Create your views here.
@@ -182,6 +183,7 @@ class ReservationCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """
         Sets the room and user for the reservation before saving.
+        Also checks for overlapping reservations.
         
         Args:
             form: The validated form instance
@@ -189,6 +191,18 @@ class ReservationCreateView(LoginRequiredMixin, CreateView):
         Returns:
             HttpResponseRedirect: Redirects to the success URL
         """
+        # Check for overlapping reservations
+        overlapping = Reservation.objects.filter(
+            room=self.get_room(),
+            date=form.cleaned_data['date'],
+            start_time__lt=form.cleaned_data['end_time'],
+            end_time__gt=form.cleaned_data['start_time']
+        )
+        
+        if overlapping.exists():
+            form.add_error('start_time', 'This time slot overlaps with an existing reservation.')
+            return self.form_invalid(form)
+        
         form.instance.room = self.get_room()
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -201,3 +215,107 @@ class ReservationCreateView(LoginRequiredMixin, CreateView):
             str: The URL to redirect to
         """
         return reverse('reservation:room_detail', kwargs={'pk': self.kwargs['pk']})
+
+class ReservationUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    A view that handles updating existing room reservations.
+    
+    Attributes:
+        model: The Reservation model to be used
+        template_name: The template to render the form
+        fields: The fields to include in the form
+    """
+    model = Reservation
+    template_name = 'reservation/reservation_form.html'
+    fields = ['title', 'description', 'date', 'start_time', 'end_time']
+    
+    def get_object(self, queryset=None):
+        """
+        Returns the reservation object and checks if the user has permission to edit it.
+        
+        Returns:
+            Reservation: The reservation object to be updated
+        """
+        obj = super().get_object(queryset)
+        if obj.user != self.request.user:
+            raise PermissionDenied("You don't have permission to edit this reservation.")
+        return obj
+    
+    def get_context_data(self, **kwargs):
+        """
+        Adds the room object to the template context.
+        
+        Args:
+            **kwargs: Additional context data
+            
+        Returns:
+            dict: The context dictionary with the room object added
+        """
+        context = super().get_context_data(**kwargs)
+        context['room'] = self.object.room
+        return context
+    
+    def form_valid(self, form):
+        """
+        Checks for overlapping reservations before saving the update.
+        
+        Args:
+            form: The validated form instance
+            
+        Returns:
+            HttpResponseRedirect: Redirects to the success URL
+        """
+        # Check for overlapping reservations, excluding current reservation
+        overlapping = Reservation.objects.filter(
+            room=self.object.room,
+            date=form.cleaned_data['date'],
+            start_time__lt=form.cleaned_data['end_time'],
+            end_time__gt=form.cleaned_data['start_time']
+        ).exclude(pk=self.object.pk)
+        
+        if overlapping.exists():
+            form.add_error('start_time', 'This time slot overlaps with an existing reservation.')
+            return self.form_invalid(form)
+        
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        """
+        Returns the URL to redirect to after successful form submission.
+        
+        Returns:
+            str: The URL to redirect to
+        """
+        return reverse('reservation:room_detail', kwargs={'pk': self.object.room.pk})
+
+class ReservationDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    A view that handles deleting existing room reservations.
+    
+    Attributes:
+        model: The Reservation model to be used
+        template_name: The template to render the confirmation page
+    """
+    model = Reservation
+    template_name = 'reservation/reservation_confirm_delete.html'
+    
+    def get_object(self, queryset=None):
+        """
+        Returns the reservation object and checks if the user has permission to delete it.
+        
+        Returns:
+            Reservation: The reservation object to be deleted
+        """
+        obj = super().get_object(queryset)
+        if obj.user != self.request.user:
+            raise PermissionDenied("You don't have permission to delete this reservation.")
+        return obj
+    
+    def get_success_url(self):
+        """
+        Returns the URL to redirect to after successful deletion.
+        
+        Returns:
+            str: The URL to redirect to
+        """
+        return reverse('reservation:room_detail', kwargs={'pk': self.object.room.pk})

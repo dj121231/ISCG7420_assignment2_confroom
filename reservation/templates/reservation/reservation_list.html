@@ -68,6 +68,34 @@
         margin: 40px 0;
         font-style: italic;
       }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .action-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9em;
+        text-align: center;
+      }
+      .edit-button {
+        background-color: #007bff;
+        color: white;
+      }
+      .edit-button:hover {
+        background-color: #0056b3;
+      }
+      .delete-button {
+        background-color: #dc3545;
+        color: white;
+      }
+      .delete-button:hover {
+        background-color: #c82333;
+      }
     </style>
   </head>
   <body>
@@ -86,6 +114,18 @@
         </div>
         <div class="reservation-status status-{{ reservation.status }}">
           {{ reservation.get_status_display }}
+        </div>
+        <div class="action-buttons">
+          <a
+            href="{% url 'reservation:reservation_edit' reservation.pk %}"
+            class="action-button edit-button"
+            >Edit</a
+          >
+          <a
+            href="{% url 'reservation:reservation_delete' reservation.pk %}"
+            class="action-button delete-button"
+            >Delete</a
+          >
         </div>
       </div>
       {% endfor %} {% else %}
