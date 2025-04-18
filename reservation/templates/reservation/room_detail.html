@@ -1,29 +1,23 @@
-{% extends 'reservation/base.html' %} {% block title %}{{ room.name }} -
-Details{% endblock %} {% block content %}
-<h1>{{ room.name }}</h1>
+{% extends 'reservation/base.html' %}
 
+{% block title %}{{ room.name }} - Details{% endblock %}
+
+{% block content %}
 <div class="card">
-  <p><strong>Capacity:</strong> {{ room.capacity }} people</p>
-  <p><strong>Location:</strong> {{ room.location }}</p>
-  <p><strong>Description:</strong> {{ room.description }}</p>
-  
-  {% if user.is_authenticated %}
-    <a
-      href="{% url 'reservation:reservation_create' room.pk %}"
-      class="button primary-button"
-      >Make a Reservation</a
-    >
-  {% else %}
-    <p class="warning-message">You need to <a href="{% url 'login' %}">login</a> to make a reservation.</p>
-  {% endif %}
-  
-  <a
-    href="{% url 'reservation:reservation_list' room.pk %}"
-    class="button edit-button"
-    >View Reservations</a
-  >
-  <a href="{% url 'reservation:room_list' %}" class="button cancel-button"
-    >← Back to Rooms</a
-  >
+    <h2>{{ room.name }}</h2>
+    <p><strong>Capacity:</strong> {{ room.capacity }} people</p>
+    <p><strong>Location:</strong> {{ room.location }}</p>
+    <p><strong>Description:</strong> {{ room.description }}</p>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'reservation:reservation_create' room.pk %}" class="button primary-button">Make a Reservation</a>
+    {% else %}
+        <p class="warning-message">Please <a href="{% url 'login' %}">login</a> to make a reservation.</p>
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{% url 'reservation:reservation_list' room.pk %}" class="button edit-button">View Reservations</a>
+        <a href="{% url 'reservation:room_list' %}" class="button cancel-button">Back to Rooms</a>
+    </div>
 </div>
 {% endblock %}

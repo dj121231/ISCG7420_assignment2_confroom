@@ -1,40 +1,67 @@
-{% extends 'reservation/base.html' %} {% block title %}Reservations - {{
-room.name }}{% endblock %} {% block content %}
+{% extends 'reservation/base.html' %}
+
+{% block title %}Reservations - {{ room.name }}{% endblock %}
+
+{% block content %}
 <h1>Reservations for {{ room.name }}</h1>
 
 <div class="reservation-list">
-  {% if reservations %} {% for reservation in reservations %}
-  <div class="card">
-    <div class="reservation-title">{{ reservation.title }}</div>
-    <div class="reservation-time">📅 {{ reservation.date|date:'F j, Y' }}</div>
-    <div class="reservation-time">
-      ⏰ {{ reservation.start_time|time:'g:i A' }} - {{
-      reservation.end_time|time:'g:i A' }}
-    </div>
-    <div class="status status-{{ reservation.status }}">
-      {{ reservation.get_status_display }}
-    </div>
-    <div class="action-buttons">
-      <a
-        href="{% url 'reservation:reservation_edit' reservation.pk %}"
-        class="button edit-button"
-        >Edit</a
-      >
-      <a
-        href="{% url 'reservation:reservation_delete' reservation.pk %}"
-        class="button delete-button"
-        >Delete</a
-      >
-    </div>
-  </div>
-  {% endfor %} {% else %}
-  <div class="empty-message">No reservations found for this room.</div>
-  {% endif %}
+    {% if reservations %}
+        {% for reservation in reservations %}
+        <div class="card">
+            <div class="reservation-title">{{ reservation.title }}</div>
+            <div class="reservation-time">📅 {{ reservation.date|date:'F j, Y' }}</div>
+            <div class="reservation-time">
+                ⏰ {{ reservation.start_time|time:'g:i A' }} - {{ reservation.end_time|time:'g:i A' }}
+            </div>
+            <div class="status status-{{ reservation.status }}">
+                {{ reservation.get_status_display }}
+                {% if reservation.status == 'pending' %}
+                    <span class="status-info">(Waiting for confirmation)</span>
+                {% endif %}
+            </div>
+            <div class="action-buttons">
+                {% if reservation.status != 'cancelled' %}
+                    <a href="{% url 'reservation:reservation_edit' reservation.pk %}" class="button edit-button">Edit</a>
+                    <a href="{% url 'reservation:reservation_delete' reservation.pk %}" class="button delete-button">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-message">No reservations found for this room.</div>
+    {% endif %}
 </div>
 
-<a
-  href="{% url 'reservation:room_detail' room.pk %}"
-  class="button primary-button"
-  >← Back to Room Details</a
->
+<div class="status-legend">
+    <h3>Reservation Status Guide:</h3>
+    <ul>
+        <li><span class="status status-pending">Pending</span> - Waiting for confirmation</li>
+        <li><span class="status status-confirmed">Confirmed</span> - Reservation has been approved</li>
+        <li><span class="status status-cancelled">Cancelled</span> - Reservation has been cancelled</li>
+    </ul>
+</div>
+
+<a href="{% url 'reservation:room_detail' room.pk %}" class="button primary-button">← Back to Room Details</a>
+
+<style>
+    .status-legend {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    .status-legend ul {
+        list-style: none;
+        padding: 0;
+    }
+    .status-legend li {
+        margin: 10px 0;
+    }
+    .status-info {
+        font-size: 0.9em;
+        color: #666;
+        margin-left: 5px;
+    }
+</style>
 {% endblock %}

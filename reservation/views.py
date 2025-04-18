@@ -107,7 +107,7 @@ class RoomDetailView(DetailView):
         """
         return Room.objects.filter(is_active=True)
 
-class ReservationListView(ListView):
+class ReservationListView(LoginRequiredMixin, ListView):
     """
     A view that displays a list of reservations for a specific room.
     
@@ -342,9 +342,7 @@ class MyReservationListView(LoginRequiredMixin, ListView):
         Returns:
             QuerySet: A filtered queryset containing the user's reservations
         """
-        return Reservation.objects.filter(
-            user=self.request.user
-        ).order_by('date', 'start_time')
+        return Reservation.objects.filter(user=self.request.user).order_by('date', 'start_time')
 
 class ReservationStatusUpdateView(LoginRequiredMixin, View):
     """
@@ -367,23 +365,13 @@ class ReservationStatusUpdateView(LoginRequiredMixin, View):
         """
         reservation = get_object_or_404(Reservation, pk=pk)
         
-        # Check if user has permission to update this reservation
-        if reservation.user != request.user:
-            raise PermissionDenied("You don't have permission to update this reservation.")
+        # Only allow status updates by the reservation owner or staff
+        if request.user != reservation.user and not request.user.is_staff:
+            raise PermissionDenied
         
-        # Get the new status from POST data
         new_status = request.POST.get('status')
+        if new_status in dict(Reservation.STATUS_CHOICES):
+            reservation.status = new_status
+            reservation.save()
         
-        # Validate the new status
-        if new_status not in ['confirmed', 'cancelled']:
-            return HttpResponseBadRequest("Invalid status value.")
-        
-        # Update the reservation status
-        reservation.status = new_status
-        reservation.save()
-        
-        # Redirect to the referring page or reservation list
-        redirect_url = request.META.get('HTTP_REFERER')
-        if not redirect_url:
-            redirect_url = reverse('reservation:my_reservations')
-        return HttpResponseRedirect(redirect_url)
+        return redirect(request.META.get('HTTP_REFERER', reverse('reservation:my_reservations')))
