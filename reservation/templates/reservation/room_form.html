@@ -1,0 +1,31 @@
+{% extends 'reservation/base.html' %}
+
+{% block title %}
+{% if form.instance.pk %}Edit{% else %}Create{% endif %} Room
+{% endblock %}
+
+{% block content %}
+<h1>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Room</h1>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="error-message">{{ field.errors }}</div>
+            {% endif %}
+            {% if field.help_text %}
+            <div class="help-text">{{ field.help_text }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="action-buttons">
+            <button type="submit" class="button primary-button">Save</button>
+            <a href="{% url 'reservation:room_list' %}" class="button cancel-button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

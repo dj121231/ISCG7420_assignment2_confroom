@@ -1,0 +1,49 @@
+{% extends 'reservation/base.html' %}
+
+{% block title %}All Reservations{% endblock %}
+
+{% block content %}
+<h1>All Reservations</h1>
+
+<div class="reservation-list">
+    {% if reservations %}
+    {% for reservation in reservations %}
+    <div class="card">
+        <div class="reservation-title">{{ reservation.title }}</div>
+        <div class="reservation-details">
+            <p><strong>Room:</strong> {{ reservation.room.name }}</p>
+            <p><strong>User:</strong> {{ reservation.user.username }}</p>
+            <p><strong>Date:</strong> {{ reservation.date|date:'F j, Y' }}</p>
+            <p><strong>Time:</strong> {{ reservation.start_time|time:'g:i A' }} - {{ reservation.end_time|time:'g:i A'
+                }}</p>
+            <div class="status status-{{ reservation.status }}">{{ reservation.get_status_display }}</div>
+        </div>
+        <div class="action-buttons">
+            <a href="{% url 'reservation:reservation_edit' reservation.pk %}" class="button edit-button">Edit</a>
+            <a href="{% url 'reservation:reservation_delete' reservation.pk %}" class="button delete-button">Delete</a>
+            {% if reservation.status == 'pending' %}
+            <form method="post" action="{% url 'reservation:reservation_status_update' reservation.pk %}"
+                style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="confirmed">
+                <button type="submit" class="button primary-button">Confirm</button>
+            </form>
+            <form method="post" action="{% url 'reservation:reservation_status_update' reservation.pk %}"
+                style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="cancelled">
+                <button type="submit" class="button delete-button">Cancel</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-message">No reservations found.</div>
+    {% endif %}
+</div>
+
+<div class="action-buttons">
+    <a href="{% url 'reservation:room_list' %}" class="button primary-button">View Rooms</a>
+</div>
+{% endblock %}

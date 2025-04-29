@@ -411,3 +411,157 @@ class SignupView(FormView):
         user = form.save()
         login(self.request, user)
         return super().form_valid(form)
+
+class RoomCreateView(LoginRequiredMixin, CreateView):
+    """
+    A view that handles the creation of new meeting rooms.
+    Only accessible by staff users.
+    
+    Attributes:
+        model: The Room model to be used
+        template_name: The template to render the form
+        fields: The fields to include in the form
+    """
+    model = Room
+    template_name = 'reservation/room_form.html'
+    fields = ['name', 'capacity', 'location', 'description', 'is_active']
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Checks if the user has staff permissions to create a room.
+        
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
+        Returns:
+            HttpResponse: The response to send to the client
+        """
+        if not request.user.is_staff:
+            return HttpResponseForbidden("You don't have permission to create rooms.")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_success_url(self):
+        """
+        Returns the URL to redirect to after successful form submission.
+        
+        Returns:
+            str: The URL to redirect to
+        """
+        return reverse('reservation:room_detail', kwargs={'pk': self.object.pk})
+
+class RoomUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    A view that handles updating existing meeting rooms.
+    Only accessible by staff users.
+    
+    Attributes:
+        model: The Room model to be used
+        template_name: The template to render the form
+        fields: The fields to include in the form
+    """
+    model = Room
+    template_name = 'reservation/room_form.html'
+    fields = ['name', 'capacity', 'location', 'description', 'is_active']
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Checks if the user has staff permissions to update a room.
+        
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
+        Returns:
+            HttpResponse: The response to send to the client
+        """
+        if not request.user.is_staff:
+            return HttpResponseForbidden("You don't have permission to update rooms.")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_success_url(self):
+        """
+        Returns the URL to redirect to after successful form submission.
+        
+        Returns:
+            str: The URL to redirect to
+        """
+        return reverse('reservation:room_detail', kwargs={'pk': self.object.pk})
+
+class RoomDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    A view that handles deleting existing meeting rooms.
+    Only accessible by staff users.
+    
+    Attributes:
+        model: The Room model to be used
+        template_name: The template to render the confirmation page
+    """
+    model = Room
+    template_name = 'reservation/room_confirm_delete.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Checks if the user has staff permissions to delete a room.
+        
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
+        Returns:
+            HttpResponse: The response to send to the client
+        """
+        if not request.user.is_staff:
+            return HttpResponseForbidden("You don't have permission to delete rooms.")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_success_url(self):
+        """
+        Returns the URL to redirect to after successful deletion.
+        
+        Returns:
+            str: The URL to redirect to
+        """
+        return reverse('reservation:room_list')
+
+class AdminReservationListView(LoginRequiredMixin, ListView):
+    """
+    A view that displays all reservations in the system.
+    Only accessible by staff users.
+    
+    Attributes:
+        model: The Reservation model to be used
+        template_name: The template to render the list
+        context_object_name: The name of the object list in the template
+    """
+    model = Reservation
+    template_name = 'reservation/admin_reservation_list.html'
+    context_object_name = 'reservations'
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Checks if the user has staff permissions to view all reservations.
+        
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
+        Returns:
+            HttpResponse: The response to send to the client
+        """
+        if not request.user.is_staff:
+            return HttpResponseForbidden("You don't have permission to view all reservations.")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        """
+        Returns a queryset of all reservations, ordered by date and start time.
+        
+        Returns:
+            QuerySet: A queryset containing all reservations
+        """
+        return Reservation.objects.all().order_by('date', 'start_time')

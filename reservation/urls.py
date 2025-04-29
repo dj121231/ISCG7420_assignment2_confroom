@@ -1,8 +1,8 @@
 from django.urls import path, reverse
 from .views import (
-    RoomListView, RoomDetailView, ReservationCreateView, 
-    ReservationListView, ReservationUpdateView, ReservationDeleteView,
-    MyReservationListView, ReservationStatusUpdateView, SignupView, home
+    RoomListView, RoomDetailView, RoomCreateView, RoomUpdateView, RoomDeleteView,
+    ReservationCreateView, ReservationListView, ReservationUpdateView, ReservationDeleteView,
+    MyReservationListView, ReservationStatusUpdateView, AdminReservationListView, SignupView, home
 )
 
 app_name = 'reservation'
@@ -14,8 +14,14 @@ urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup'),
     # URL pattern for listing all active rooms
     path('rooms/', RoomListView.as_view(), name='room_list'),
+    # URL pattern for creating a new room
+    path('rooms/create/', RoomCreateView.as_view(), name='room_create'),
     # URL pattern for viewing a specific room's details
     path('rooms/<int:pk>/', RoomDetailView.as_view(), name='room_detail'),
+    # URL pattern for updating a room
+    path('rooms/<int:pk>/edit/', RoomUpdateView.as_view(), name='room_edit'),
+    # URL pattern for deleting a room
+    path('rooms/<int:pk>/delete/', RoomDeleteView.as_view(), name='room_delete'),
     # URL pattern for creating a new reservation for a specific room
     path('rooms/<int:pk>/reserve/', ReservationCreateView.as_view(), name='reservation_create'),
     # URL pattern for viewing reservations of a specific room
@@ -28,4 +34,6 @@ urlpatterns = [
     path('my-reservations/', MyReservationListView.as_view(), name='my_reservations'),
     # URL pattern for updating reservation status
     path('reservations/<int:pk>/status/', ReservationStatusUpdateView.as_view(), name='reservation_status_update'),
+    # URL pattern for admin to view all reservations
+    path('admin/reservations/', AdminReservationListView.as_view(), name='admin_reservation_list'),
 ] 
