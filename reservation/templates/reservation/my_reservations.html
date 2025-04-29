@@ -21,7 +21,7 @@ My Reservations
       {{ reservation.get_status_display }}
     </div>
     <div class="action-buttons">
-      {% if reservation.status == 'pending' %}
+      {% if reservation.status == 'pending' and user.is_staff %}
       <form method="post" action="{% url 'reservation:reservation_status_update' reservation.pk %}"
         style="display: inline">
         {% csrf_token %}
