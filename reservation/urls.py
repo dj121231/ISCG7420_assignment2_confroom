@@ -2,7 +2,7 @@ from django.urls import path, reverse
 from .views import (
     RoomListView, RoomDetailView, ReservationCreateView, 
     ReservationListView, ReservationUpdateView, ReservationDeleteView,
-    MyReservationListView, ReservationStatusUpdateView, home
+    MyReservationListView, ReservationStatusUpdateView, SignupView, home
 )
 
 app_name = 'reservation'
@@ -10,6 +10,8 @@ app_name = 'reservation'
 urlpatterns = [
     # URL pattern for the home page
     path('', home, name='home'),
+    # URL pattern for user registration
+    path('signup/', SignupView.as_view(), name='signup'),
     # URL pattern for listing all active rooms
     path('rooms/', RoomListView.as_view(), name='room_list'),
     # URL pattern for viewing a specific room's details

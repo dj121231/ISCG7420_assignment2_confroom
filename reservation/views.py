@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.views.generic.edit import FormView
 from .models import Room, Reservation
 
 # Create your views here.
@@ -230,17 +233,22 @@ class ReservationUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'reservation/reservation_form.html'
     fields = ['title', 'description', 'date', 'start_time', 'end_time']
     
-    def get_object(self, queryset=None):
+    def dispatch(self, request, *args, **kwargs):
         """
-        Returns the reservation object and checks if the user has permission to edit it.
+        Checks if the user has permission to update the reservation.
         
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
         Returns:
-            Reservation: The reservation object to be updated
+            HttpResponse: The response to send to the client
         """
-        obj = super().get_object(queryset)
-        if obj.user != self.request.user:
-            raise PermissionDenied("You don't have permission to edit this reservation.")
-        return obj
+        reservation = self.get_object()
+        if request.user != reservation.user:
+            return HttpResponseForbidden("You don't have permission to edit this reservation.")
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         """
@@ -300,17 +308,22 @@ class ReservationDeleteView(LoginRequiredMixin, DeleteView):
     model = Reservation
     template_name = 'reservation/reservation_confirm_delete.html'
     
-    def get_object(self, queryset=None):
+    def dispatch(self, request, *args, **kwargs):
         """
-        Returns the reservation object and checks if the user has permission to delete it.
+        Checks if the user has permission to delete the reservation.
         
+        Args:
+            request: The HTTP request object
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+            
         Returns:
-            Reservation: The reservation object to be deleted
+            HttpResponse: The response to send to the client
         """
-        obj = super().get_object(queryset)
-        if obj.user != self.request.user:
-            raise PermissionDenied("You don't have permission to delete this reservation.")
-        return obj
+        reservation = self.get_object()
+        if request.user != reservation.user:
+            return HttpResponseForbidden("You don't have permission to delete this reservation.")
+        return super().dispatch(request, *args, **kwargs)
     
     def get_success_url(self):
         """
@@ -375,3 +388,26 @@ class ReservationStatusUpdateView(LoginRequiredMixin, View):
             reservation.save()
         
         return redirect(request.META.get('HTTP_REFERER', reverse('reservation:my_reservations')))
+
+class SignupView(FormView):
+    """
+    A view that handles user registration using Django's UserCreationForm.
+    Automatically logs in the user after successful registration.
+    """
+    form_class = UserCreationForm
+    template_name = 'reservation/signup.html'
+    success_url = '/rooms/'
+    
+    def form_valid(self, form):
+        """
+        Creates a new user and logs them in after successful registration.
+        
+        Args:
+            form: The validated form instance
+            
+        Returns:
+            HttpResponseRedirect: Redirects to the success URL
+        """
+        user = form.save()
+        login(self.request, user)
+        return super().form_valid(form)
