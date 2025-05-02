@@ -1,42 +1,124 @@
 {% extends 'reservation/base.html' %}
 
 {% block title %}
-    {% if form.instance.pk %}
-        Edit Reservation
-    {% else %}
-        Create Reservation
-    {% endif %}
+{% if form.instance.pk %}Edit{% else %}Create{% endif %} Reservation
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1>
-        {% if form.instance.pk %}
-            Edit Reservation
-        {% else %}
-            Create Reservation
-        {% endif %}
-    </h1>
+<!-- Main heading that changes based on whether we're creating or editing -->
+<h1>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Reservation</h1>
 
-    <form method="post">
-        {% csrf_token %} 
-        {% for field in form %}
+<!-- Card container for the form -->
+<div class="card">
+    <!-- Form for creating/editing reservations -->
+    <form method="post" id="reservation-form">
+        {% csrf_token %}
         <div class="form-field">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }} 
-          {% if field.errors %}
-          <div class="error-message">{{ field.errors }}</div>
-          {% endif %}
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="error-message">{{ form.title.errors }}</div>{% endif %}
         </div>
-        {% endfor %}
+        <div class="form-field">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}<div class="error-message">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.date.id_for_label }}">Date</label>
+            {{ form.date }}
+            {% if form.date.errors %}<div class="error-message">{{ form.date.errors }}</div>{% endif %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.start_time.id_for_label }}">Start Time</label>
+            {{ form.start_time }}
+            {% if form.start_time.errors %}<div class="error-message">{{ form.start_time.errors }}</div>{% endif %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.end_time.id_for_label }}">End Time</label>
+            {{ form.end_time }}
+            {% if form.end_time.errors %}<div class="error-message">{{ form.end_time.errors }}</div>{% endif %}
+        </div>
         <div class="action-buttons">
-          <button type="submit" class="button primary-button">Save</button>
-          <a
-            href="{% url 'reservation:room_detail' room.pk %}"
-            class="button cancel-button"
-            >Cancel</a
-          >
+            <button type="submit" class="button primary-button">Save</button>
+            <a href="{% url 'reservation:room_list' %}" class="button cancel-button">Cancel</a>
         </div>
     </form>
 </div>
+
+<!-- flatpickr CSS/JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    function timeToMinutes(t) {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+    }
+    function disableOverlappingOptions(reserved) {
+        const startSelect = document.getElementById('id_start_time');
+        const endSelect = document.getElementById('id_end_time');
+        for (const opt of startSelect.options) {
+            opt.disabled = false;
+            opt.style.color = '';
+            opt.style.background = '';
+        }
+        for (const opt of endSelect.options) {
+            opt.disabled = false;
+            opt.style.color = '';
+            opt.style.background = '';
+        }
+        reserved.forEach(r => {
+            const start = timeToMinutes(r.start);
+            const end = timeToMinutes(r.end);
+            for (const opt of startSelect.options) {
+                const v = timeToMinutes(opt.value);
+                if (v >= start && v < end) {
+                    opt.disabled = true;
+                    opt.style.color = '#aaa';
+                    opt.style.background = '#eee';
+                }
+            }
+            for (const opt of endSelect.options) {
+                const v = timeToMinutes(opt.value);
+                if (v > start && v <= end) {
+                    opt.disabled = true;
+                    opt.style.color = '#aaa';
+                    opt.style.background = '#eee';
+                }
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        // flatpickr로 날짜 입력 제한
+        fetch(`/api/available-dates/?room_id={{ room.id }}`)
+            .then(resp => resp.json())
+            .then(availableDates => {
+                flatpickr("#id_date", {
+                    dateFormat: "Y-m-d",
+                    enable: availableDates,
+                    onChange: function (selectedDates, dateStr) {
+                        if (!dateStr) return;
+                        fetch(`/api/reserved-times/?room_id={{ room.id }}&date=${dateStr}`)
+                            .then(resp => resp.json())
+                            .then(times => {
+                                if (Array.isArray(times)) {
+                                    disableOverlappingOptions(times);
+                                }
+                            });
+                    }
+                });
+            });
+        // 페이지 로드시 date가 이미 있으면 시간 옵션도 동기화
+        const dateInput = document.getElementById('id_date');
+        if (dateInput && dateInput.value) {
+            fetch(`/api/reserved-times/?room_id={{ room.id }}&date=${dateInput.value}`)
+                .then(resp => resp.json())
+                .then(times => {
+                    if (Array.isArray(times)) {
+                        disableOverlappingOptions(times);
+                    }
+                });
+        }
+    });
+</script>
 {% endblock %}

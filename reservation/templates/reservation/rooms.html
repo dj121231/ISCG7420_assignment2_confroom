@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-{% extends 'reservation/base.html' %} {% block title %}Available Rooms{%endblock %} {% block content %}
-<h1>Available Rooms</h1>
+{% extends 'reservation/base.html' %}
+
+{% block title %}Available Rooms{% endblock %}
+
+{% block content %}
+<!-- Header section with flexbox layout -->
+<div class="header-section"
+  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+  <h1>Available Rooms</h1>
+  {% if user.is_authenticated and user.is_staff %}
+  <div class="action-buttons">
+    <a href="{% url 'reservation:room_create' %}" class="button primary-button">Add Room</a>
+  </div>
+  {% endif %}
+</div>
 
 <div class="room-list">
-  {% if rooms %} {% for room in rooms %}
+  {% if rooms %}
+  {% for room in rooms %}
   <div class="card">
     <h2>
       <a href="{% url 'reservation:room_detail' room.pk %}" class="room-link">
@@ -15,8 +29,12 @@
     {% if room.description %}
     <p><strong>Description:</strong> {{ room.description }}</p>
     {% endif %}
+    <div class="action-buttons">
+      <a href="{% url 'reservation:room_detail' room.pk %}" class="button primary-button">View Details</a>
+    </div>
   </div>
-  {% endfor %} {% else %}
+  {% endfor %}
+  {% else %}
   <div class="empty-message">No rooms available at the moment.</div>
   {% endif %}
 </div>

@@ -1,0 +1,82 @@
+{% extends 'reservation/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Reservation (Admin){% endblock %}
+
+{% block content %}
+<h1>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Reservation (Admin)</h1>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- User Selection -->
+        <div class="form-field">
+            <label for="{{ form.user.id_for_label }}">User</label>
+            {{ form.user }}
+            {% if form.user.errors %}
+            <div class="error-message">{{ form.user.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Room Selection -->
+        <div class="form-field">
+            <label for="{{ form.room.id_for_label }}">Room</label>
+            {{ form.room }}
+            {% if form.room.errors %}
+            <div class="error-message">{{ form.room.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Reservation Title -->
+        <div class="form-field">
+            <label for="{{ form.title.id_for_label }}">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div class="error-message">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="form-field">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div class="error-message">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Date -->
+        <div class="form-field">
+            <label for="{{ form.date.id_for_label }}">Date</label>
+            {{ form.date }}
+            {% if form.date.errors %}
+            <div class="error-message">{{ form.date.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Start Time -->
+        <div class="form-field">
+            <label for="{{ form.start_time.id_for_label }}">Start Time</label>
+            {{ form.start_time }}
+            {% if form.start_time.errors %}
+            <div class="error-message">{{ form.start_time.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- End Time -->
+        <div class="form-field">
+            <label for="{{ form.end_time.id_for_label }}">End Time</label>
+            {{ form.end_time }}
+            {% if form.end_time.errors %}
+            <div class="error-message">{{ form.end_time.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button type="submit" class="button primary-button">Save</button>
+            <a href="{% url 'reservation:admin_reservation_list' %}" class="button cancel-button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

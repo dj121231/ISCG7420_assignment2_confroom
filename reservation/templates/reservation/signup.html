@@ -1,5 +1,4 @@
-{% extends 'reservation/base.html' %} {% block title %}Sign Up{% endblock %} {%
-block content %}
+{% extends 'reservation/base.html' %} {% block title %}Sign Up{% endblock %} {% block content %}
 <h1>Create an Account</h1>
 
 <div class="card">
@@ -16,9 +15,7 @@ block content %}
     {% endfor %}
     <div class="action-buttons">
       <button type="submit" class="button primary-button">Sign Up</button>
-      <a href="{% url 'reservation:room_list' %}" class="button cancel-button"
-        >Cancel</a
-      >
+      <a href="{% url 'reservation:room_list' %}" class="button cancel-button">Cancel</a>
     </div>
   </form>
 </div>

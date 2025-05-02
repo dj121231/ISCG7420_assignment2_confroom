@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .details {
+            margin: 20px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Reservation Created</h1>
+        </div>
+        <div class="content">
+            <p>Hello {{ user.username }},</p>
+            <p>Your reservation has been successfully created. Here are the details:</p>
+
+            <div class="details">
+                <p><strong>Title:</strong> {{ reservation.title }}</p>
+                <p><strong>Room:</strong> {{ reservation.room.name }}</p>
+                <p><strong>Date:</strong> {{ reservation.date|date:"F j, Y" }}</p>
+                <p><strong>Time:</strong> {{ reservation.start_time|time:"g:i A" }} - {{ reservation.end_time|time:"g:i
+                    A" }}</p>
+                <p><strong>Status:</strong> {{ reservation.get_status_display }}</p>
+                {% if reservation.description %}
+                <p><strong>Description:</strong> {{ reservation.description }}</p>
+                {% endif %}
+            </div>
+
+            <p>You can view and manage your reservations by logging into your account.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from the Conference Room Booking System.</p>
+        </div>
+    </div>
+</body>
+
+</html>

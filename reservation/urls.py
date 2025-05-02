@@ -2,7 +2,8 @@ from django.urls import path, reverse
 from .views import (
     RoomListView, RoomDetailView, RoomCreateView, RoomUpdateView, RoomDeleteView,
     ReservationCreateView, ReservationListView, ReservationUpdateView, ReservationDeleteView,
-    MyReservationListView, ReservationStatusUpdateView, AdminReservationListView, SignupView, home
+    MyReservationListView, ReservationStatusUpdateView, AdminReservationListView,
+    AdminReservationCreateView, SignupView, home, reserved_times, available_dates
 )
 
 app_name = 'reservation'
@@ -35,5 +36,10 @@ urlpatterns = [
     # URL pattern for updating reservation status
     path('reservations/<int:pk>/status/', ReservationStatusUpdateView.as_view(), name='reservation_status_update'),
     # URL pattern for admin to view all reservations
-    path('admin/reservations/', AdminReservationListView.as_view(), name='admin_reservation_list'),
+    path('staff/reservations/', AdminReservationListView.as_view(), name='admin_reservation_list'),
+    # URL pattern for admin to create reservations
+    path('staff/reservations/create/', AdminReservationCreateView.as_view(), name='admin_reservation_create'),
+    # API endpoints
+    path('api/reserved-times/', reserved_times, name='reserved_times'),
+    path('api/available-dates/', available_dates, name='available_dates'),
 ] 
