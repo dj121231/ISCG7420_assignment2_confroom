@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!ee%o)d(+)*)7b&=19i-glw!ji+vt&4tlx_i4a9pf7na+=9$j%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'conference.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_sMpXtvzyW5J4',
+        'HOST': 'ep-long-thunder-a1tm8iq1-pooler.ap-southeast-1.aws.neon.tech',
+        'PORT': '5432',
     }
 }
 
@@ -135,3 +139,9 @@ DEFAULT_FROM_EMAIL = 'noreply@example.com'
 
 # Disable automatic login (persistent sessions)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Session settings
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
