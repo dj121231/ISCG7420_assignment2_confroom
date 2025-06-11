@@ -7,6 +7,7 @@ const ReservationForm = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [formData, setFormData] = useState({
+    title: "",
     room: "",
     date: "",
     start_time: "",
@@ -17,8 +18,10 @@ const ReservationForm = () => {
     const fetchRooms = async () => {
       try {
         const response = await axiosInstance.get("/rooms/");
+        console.log("Fetched rooms:", response.data);
         setRooms(response.data);
       } catch (err) {
+        console.error("Room fetch error:", err);
         setError("Failed to load rooms.");
       } finally {
         setLoading(false);
@@ -41,18 +44,53 @@ const ReservationForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const newValue = name === "room" ? parseInt(value) || "" : value;
+      console.log(`Updating ${name}:`, {
+        value,
+        newValue,
+        type: typeof newValue,
+      });
+      return { ...prev, [name]: newValue };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    // Create payload with explicit room ID conversion
+    const payload = {
+      ...formData,
+      room: parseInt(formData.room),
+    };
+
+    // Log form data and verify room type before submission
+    console.log("Form data before submission:", {
+      ...formData,
+      roomType: typeof formData.room,
+      roomValue: formData.room,
+    });
+    console.log("Payload with explicit room conversion:", {
+      ...payload,
+      roomType: typeof payload.room,
+      roomValue: payload.room,
+    });
+
     try {
-      await axiosInstance.post("/reservations/", formData);
+      const response = await axiosInstance.post("/reservations/", payload);
+      console.log("Reservation response:", response.data);
       setSuccess("Reservation created successfully!");
-      setFormData({ room: "", date: "", start_time: "", end_time: "" });
+      setFormData({
+        title: "",
+        room: "",
+        date: "",
+        start_time: "",
+        end_time: "",
+      });
     } catch (err) {
+      console.error("Reservation error:", err.response?.data);
       let errMsg = "An error occurred.";
       if (err.response && err.response.data) {
         errMsg = JSON.stringify(err.response.data);
@@ -70,6 +108,17 @@ const ReservationForm = () => {
       {success && <div style={{ color: "green" }}>{success}</div>}
       <form onSubmit={handleSubmit}>
         <div>
+          <label>Title:</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            style={{ marginBottom: "10px", width: "100%", padding: "5px" }}
+          />
+        </div>
+        <div>
           <label>Room:</label>
           <select
             name="room"
@@ -78,12 +127,15 @@ const ReservationForm = () => {
             required
           >
             <option value="">-- Select a room --</option>
-            {rooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.name} (Location: {room.location}, Capacity:{" "}
-                {room.capacity})
-              </option>
-            ))}
+            {rooms.map((room) => {
+              console.log(`Creating option for room:`, room);
+              return (
+                <option key={room.id} value={room.id}>
+                  {room.name} (Location: {room.location}, Capacity:{" "}
+                  {room.capacity})
+                </option>
+              );
+            })}
           </select>
         </div>
         <div>

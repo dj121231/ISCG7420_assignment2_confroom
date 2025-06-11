@@ -13,13 +13,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 class ReservationSerializer(serializers.ModelSerializer):
-    # Display room name and username (instead of raw IDs) for room and user
-    room = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    # Make room writable (accepts pk from POST), user remains read-only
+    room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
     user = serializers.SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
         model = Reservation
         fields = '__all__'
+        read_only_fields = ["id", "user", "status", "created_at", "updated_at"]
 
     def validate(self, data):
         start_time = data.get('start_time')
