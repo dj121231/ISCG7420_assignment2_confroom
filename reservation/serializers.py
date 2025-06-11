@@ -1,13 +1,22 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Room, Reservation
-from django.contrib.auth.models import User
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
 class ReservationSerializer(serializers.ModelSerializer):
+    # Display room name and username (instead of raw IDs) for room and user
+    room = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    user = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
     class Meta:
         model = Reservation
         fields = '__all__'
@@ -40,9 +49,4 @@ class ReservationSerializer(serializers.ModelSerializer):
                 if res.start_time < end_time and res.end_time > start_time:
                     raise serializers.ValidationError('Overlapping reservation exists for this room, date, and time.')
 
-        return data
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email'] 
+        return data 
