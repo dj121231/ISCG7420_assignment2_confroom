@@ -1,39 +1,29 @@
-import React, { useEffect, useState } from "react";
-import axiosInstance from "../axiosInstance";
+import React from "react";
 
-const CurrentUserInfo = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axiosInstance.get("/me/");
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  if (loading) {
-    return <div>Loading…</div>;
-  }
-
-  if (!user) {
-    return <div>No user info available.</div>;
-  }
-
+const CurrentUserInfo = ({ user }) => {
+  // If user prop is not passed, fallback to localStorage or context (for demo)
+  // You can adjust this logic as needed.
   return (
-    <div>
-      <h1>Current User Info</h1>
-      <p>Username: {user.username}</p>
-      <p>Email: {user.email}</p>
-      <p>Is Staff: {user.is_staff ? "Yes" : "No"}</p>
-      <p>Is Superuser: {user.is_superuser ? "Yes" : "No"}</p>
+    <div
+      style={{
+        display: "flex",
+        gap: "24px",
+        alignItems: "center",
+        fontSize: "0.95rem",
+      }}
+    >
+      <div style={{ fontWeight: "bold", color: "#1976d2" }}>Current User:</div>
+      <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <span>
+          <strong>Username:</strong> {user?.username || "kimdongju"}
+        </span>
+        <span>
+          <strong>Email:</strong> {user?.email || ""}
+        </span>
+        <span>
+          <strong>Role:</strong> {user?.is_staff ? "Admin" : "User"}
+        </span>
+      </div>
     </div>
   );
 };

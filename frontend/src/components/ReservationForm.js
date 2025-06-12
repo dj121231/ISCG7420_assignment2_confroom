@@ -99,88 +99,133 @@ const ReservationForm = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div style={{ fontSize: "0.95rem", color: "#666" }}>Loading rooms...</div>
+    );
 
   return (
     <div>
-      <h1>Create Reservation</h1>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      {success && <div style={{ color: "green" }}>{success}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
+      <div className="card-title">Create Reservation</div>
+      {error && (
+        <div
+          style={{
+            color: "#c62828",
+            fontSize: "0.95rem",
+            marginBottom: "12px",
+          }}
+        >
+          {error}
+        </div>
+      )}
+      {success && (
+        <div
+          style={{
+            color: "#1b7f2a",
+            fontSize: "0.95rem",
+            marginBottom: "12px",
+          }}
+        >
+          {success}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} style={{ fontSize: "0.95rem" }}>
+        <div className="input-row">
+          <label className="label" htmlFor="title">
+            Title
+          </label>
           <input
+            className="input"
             type="text"
+            id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
             required
-            style={{ marginBottom: "10px", width: "100%", padding: "5px" }}
+            placeholder="Enter reservation title"
           />
         </div>
-        <div>
-          <label>Room:</label>
+        <div className="input-row">
+          <label className="label" htmlFor="room">
+            Room
+          </label>
           <select
+            className="input"
+            id="room"
             name="room"
             value={formData.room}
             onChange={handleChange}
             required
           >
-            <option value="">-- Select a room --</option>
-            {rooms.map((room) => {
-              console.log(`Creating option for room:`, room);
-              return (
-                <option key={room.id} value={room.id}>
-                  {room.name} (Location: {room.location}, Capacity:{" "}
-                  {room.capacity})
-                </option>
-              );
-            })}
+            <option value="">Select a room</option>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                {room.name} • {room.location} • {room.capacity} seats
+              </option>
+            ))}
           </select>
         </div>
-        <div>
-          <label>Date:</label>
+        <div className="input-row">
+          <label className="label" htmlFor="date">
+            Date
+          </label>
           <input
+            className="input"
             type="date"
+            id="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
-          <label>Start Time:</label>
-          <select
-            name="start_time"
-            value={formData.start_time}
-            onChange={handleChange}
-            required
-          >
-            <option value="">-- Select start time --</option>
-            {timeOptions.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
+        <div style={{ display: "flex", gap: "12px" }}>
+          <div className="input-row" style={{ flex: 1 }}>
+            <label className="label" htmlFor="start_time">
+              Start Time
+            </label>
+            <select
+              className="input"
+              id="start_time"
+              name="start_time"
+              value={formData.start_time}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select start time</option>
+              {timeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {time.slice(0, 5)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-row" style={{ flex: 1 }}>
+            <label className="label" htmlFor="end_time">
+              End Time
+            </label>
+            <select
+              className="input"
+              id="end_time"
+              name="end_time"
+              value={formData.end_time}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select end time</option>
+              {timeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {time.slice(0, 5)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div>
-          <label>End Time:</label>
-          <select
-            name="end_time"
-            value={formData.end_time}
-            onChange={handleChange}
-            required
-          >
-            <option value="">-- Select end time --</option>
-            {timeOptions.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
+        <div className="btn-group">
+          <button className="btn btn-primary" type="submit">
+            Create Reservation
+          </button>
         </div>
-        <button type="submit">Submit</button>
       </form>
     </div>
   );

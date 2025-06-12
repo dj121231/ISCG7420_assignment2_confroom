@@ -20,23 +20,69 @@ const RoomList = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading…</div>;
+    return (
+      <div style={{ fontSize: "0.95rem", color: "#666" }}>Loading rooms…</div>
+    );
   }
 
   if (rooms.length === 0) {
-    return <div>No rooms available.</div>;
+    return (
+      <div style={{ fontSize: "0.95rem", color: "#666" }}>
+        No rooms available.
+      </div>
+    );
   }
 
   return (
     <div>
-      <h1>Room List</h1>
-      <ul>
+      <div className="card-title">Room List</div>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {rooms.map((room) => (
-          <li key={room.id}>
-            <strong>Name:</strong> {room.name} <br />
-            <strong>Location:</strong> {room.location} <br />
-            <strong>Capacity:</strong> {room.capacity} <br />
-            <strong>Status:</strong> {room.is_active ? "Active" : "Inactive"}
+          <li
+            key={room.id}
+            style={{
+              padding: "10px 0",
+              borderBottom: "1px solid #e3e8ef",
+              fontSize: "0.95rem",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: "bold",
+                color: "#1976d2",
+                marginBottom: "4px",
+              }}
+            >
+              {room.name}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px 16px",
+                color: "#555",
+              }}
+            >
+              <span>
+                <strong style={{ color: "#666" }}>Location:</strong>{" "}
+                {room.location}
+              </span>
+              <span>
+                <strong style={{ color: "#666" }}>Capacity:</strong>{" "}
+                {room.capacity}
+              </span>
+              <span>
+                <strong style={{ color: "#666" }}>Status:</strong>
+                <span
+                  style={{
+                    color: room.is_active ? "#1b7f2a" : "#c62828",
+                    marginLeft: "4px",
+                  }}
+                >
+                  {room.is_active ? "Active" : "Inactive"}
+                </span>
+              </span>
+            </div>
           </li>
         ))}
       </ul>

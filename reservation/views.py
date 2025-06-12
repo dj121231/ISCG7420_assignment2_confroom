@@ -1,14 +1,15 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import Room, Reservation
-from .serializers import RoomSerializer, ReservationSerializer, UserSerializer
+from .serializers import RoomSerializer, ReservationSerializer, UserSerializer, RegisterSerializer
 from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
 from datetime import timedelta, datetime, time
+from rest_framework import serializers
 
 # Create your views here.
 
@@ -27,6 +28,17 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return Reservation.objects.filter(user=user)
 
     def perform_create(self, serializer):
+        data = serializer.validated_data
+        room = data.get("room")
+        date = data.get("date")
+        new_start_time = data.get("start_time")
+        new_end_time = data.get("end_time")
+        # Check for an overlapping reservation (same room, same date, and overlapping time range)
+        overlap = Reservation.objects.filter(room=room, date=date).filter(
+            start_time__lt=new_end_time, end_time__gt=new_start_time
+        ).exists()
+        if overlap:
+            raise serializers.ValidationError("A reservation with overlapping time range already exists for this room and date.")
         serializer.save(user=self.request.user)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
@@ -94,3 +106,23 @@ class CurrentUserAPIView(APIView):
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,
         })
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get (self, request):
+         serializer = UserSerializer(request.user)
+         return Response(serializer.data)
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = RegisterSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "user": UserSerializer(user, context=self.get_serializer_context()).data,
+                "message": "User Created Successfully"
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
