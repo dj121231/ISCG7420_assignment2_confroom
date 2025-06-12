@@ -1,17 +1,21 @@
+// RoomList.js - Displays a list of all available conference rooms
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../axiosInstance";
 
 const RoomList = () => {
+  // State for rooms, loading, and error
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch room list on mount
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const response = await axiosInstance.get("/rooms/");
         setRooms(response.data);
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
+      } catch (err) {
+        setError("Failed to load rooms.");
       } finally {
         setLoading(false);
       }
@@ -19,70 +23,34 @@ const RoomList = () => {
     fetchRooms();
   }, []);
 
-  if (loading) {
+  if (loading)
     return (
-      <div style={{ fontSize: "0.95rem", color: "#666" }}>Loading rooms…</div>
+      <div style={{ fontSize: "0.95rem", color: "#666" }}>Loading rooms...</div>
     );
-  }
+  if (error)
+    return <div style={{ color: "#c62828", fontSize: "0.95rem" }}>{error}</div>;
+  if (rooms.length === 0)
+    return <div style={{ fontSize: "0.95rem" }}>No rooms available.</div>;
 
-  if (rooms.length === 0) {
-    return (
-      <div style={{ fontSize: "0.95rem", color: "#666" }}>
-        No rooms available.
-      </div>
-    );
-  }
-
+  // Render the list of rooms
   return (
     <div>
       <div className="card-title">Room List</div>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+      <ul style={{ listStyle: "none", padding: 0 }}>
         {rooms.map((room) => (
           <li
             key={room.id}
             style={{
-              padding: "10px 0",
-              borderBottom: "1px solid #e3e8ef",
-              fontSize: "0.95rem",
+              marginBottom: "12px",
+              padding: "8px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
             }}
           >
-            <div
-              style={{
-                fontWeight: "bold",
-                color: "#1976d2",
-                marginBottom: "4px",
-              }}
-            >
-              {room.name}
+            <div>
+              <strong>{room.name}</strong> ({room.location})
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px 16px",
-                color: "#555",
-              }}
-            >
-              <span>
-                <strong style={{ color: "#666" }}>Location:</strong>{" "}
-                {room.location}
-              </span>
-              <span>
-                <strong style={{ color: "#666" }}>Capacity:</strong>{" "}
-                {room.capacity}
-              </span>
-              <span>
-                <strong style={{ color: "#666" }}>Status:</strong>
-                <span
-                  style={{
-                    color: room.is_active ? "#1b7f2a" : "#c62828",
-                    marginLeft: "4px",
-                  }}
-                >
-                  {room.is_active ? "Active" : "Inactive"}
-                </span>
-              </span>
-            </div>
+            <div>Capacity: {room.capacity} seats</div>
           </li>
         ))}
       </ul>

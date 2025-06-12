@@ -1,11 +1,14 @@
+// CurrentUserInfo.js - Displays the current user's information in the UI
 import React from "react";
 
 const CurrentUserInfo = ({ user }) => {
+  // If no user is provided, show a not-logged-in message
   if (!user) {
     return (
       <div style={{ fontWeight: "bold", color: "#c62828" }}>Not logged in</div>
     );
   }
+  // Show username, email, and role for the logged-in user
   return (
     <div
       style={{

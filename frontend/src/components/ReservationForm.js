@@ -1,7 +1,9 @@
+// ReservationForm.js - Form for creating a new conference room reservation
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 
 const ReservationForm = ({ setReservationChanged }) => {
+  // State for room list, loading, error, success, and form data
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,6 +16,7 @@ const ReservationForm = ({ setReservationChanged }) => {
     end_time: "",
   });
 
+  // Fetch available rooms on mount
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -42,6 +45,7 @@ const ReservationForm = ({ setReservationChanged }) => {
     }
   }
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
@@ -55,6 +59,7 @@ const ReservationForm = ({ setReservationChanged }) => {
     });
   };
 
+  // Handle form submission to create a reservation
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -89,6 +94,7 @@ const ReservationForm = ({ setReservationChanged }) => {
         start_time: "",
         end_time: "",
       });
+      // Trigger reservation list refresh in parent
       if (setReservationChanged) {
         setReservationChanged((prev) => !prev);
       }
@@ -110,6 +116,7 @@ const ReservationForm = ({ setReservationChanged }) => {
   return (
     <div>
       <div className="card-title">Create Reservation</div>
+      {/* Error and success messages */}
       {error && (
         <div
           style={{
@@ -132,6 +139,7 @@ const ReservationForm = ({ setReservationChanged }) => {
           {success}
         </div>
       )}
+      {/* Reservation creation form */}
       <form onSubmit={handleSubmit} style={{ fontSize: "0.95rem" }}>
         <div className="input-row">
           <label className="label" htmlFor="title">

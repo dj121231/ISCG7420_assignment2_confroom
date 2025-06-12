@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../axiosInstance";
 
-const MyReservations = ({ isStaff }) => {
+const MyReservations = ({ isStaff, reservationChanged }) => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +14,11 @@ const MyReservations = ({ isStaff }) => {
     description: "",
   });
   const [filterStatus, setFilterStatus] = useState("all");
-  const [reservationChanged, setReservationChanged] = useState(false);
 
   const fetchReservations = async () => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.get("/reservations/");
+      const response = await axiosInstance.get("/my-reservations/");
       setReservations(response.data);
     } catch (err) {
       setError("Failed to load reservations.");
@@ -33,9 +33,11 @@ const MyReservations = ({ isStaff }) => {
   }, [reservationChanged]);
 
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this reservation?"))
+      return;
     try {
       await axiosInstance.delete(`/reservations/${id}/`);
-      setReservations(reservations.filter((res) => res.id !== id));
+      fetchReservations();
     } catch (err) {
       setError("Failed to cancel reservation.");
     }
@@ -225,15 +227,7 @@ const MyReservations = ({ isStaff }) => {
                 )}
                 <button
                   className="btn btn-danger"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to cancel this reservation?"
-                      )
-                    ) {
-                      handleDelete(res.id);
-                    }
-                  }}
+                  onClick={() => handleDelete(res.id)}
                   style={{ padding: "6px 12px", fontSize: "0.9rem" }}
                 >
                   Cancel

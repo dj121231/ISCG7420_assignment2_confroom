@@ -1,62 +1,61 @@
-// src/axiosInstance.js
+// src/axiosInstance.js - Configures axios with JWT authentication for API requests
 import axios from "axios";
 
-// axios 인스턴스 생성
+// Create an axios instance with base URL for the backend API
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api/",
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
+  timeout: 5000,
   headers: {
     "Content-Type": "application/json",
-    Accept: "application/json",
+    accept: "application/json",
   },
 });
 
-// 요청 보내기 전에 로컬스토리지에서 access token을 읽어서 Authorization에 추가
+// Add a request interceptor to attach JWT access token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete config.headers["Authorization"];
+    const accessToken = localStorage.getItem("access");
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// 응답 인터셉터: 401(만료)시 토큰 자동 갱신 및 재시도
+// Add a response interceptor to handle token refresh on 401 errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // 무한루프 방지: 이미 재시도한 요청은 skip
+    // If 401 error and not already retried, try to refresh token
     if (
       error.response &&
       error.response.status === 401 &&
-      !originalRequest._retry &&
-      localStorage.getItem("refresh")
+      !originalRequest._retry
     ) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("refresh");
-        const res = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          { refresh: refreshToken },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        const newAccess = res.data.access;
-        localStorage.setItem("access", newAccess);
-        // Authorization 헤더 갱신
-        originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // refresh 실패: 로그아웃 처리
+        if (refreshToken) {
+          const response = await axios.post(
+            process.env.REACT_APP_API_URL
+              ? process.env.REACT_APP_API_URL + "/token/refresh/"
+              : "http://localhost:8000/api/token/refresh/",
+            { refresh: refreshToken },
+            { headers: { "Content-Type": "application/json" } }
+          );
+          localStorage.setItem("access", response.data.access);
+          axiosInstance.defaults.headers["Authorization"] =
+            "Bearer " + response.data.access;
+          originalRequest.headers["Authorization"] =
+            "Bearer " + response.data.access;
+          return axiosInstance(originalRequest);
+        }
+      } catch (err) {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.href = "/"; // 또는 로그인 페이지로 리다이렉트
-        return Promise.reject(refreshError);
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
