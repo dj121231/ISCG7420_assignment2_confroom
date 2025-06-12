@@ -14,6 +14,7 @@ function App() {
   const [isStaff, setIsStaff] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [reservationChanged, setReservationChanged] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -117,10 +118,15 @@ function App() {
                 <div className="dashboard">
                   <div className="main-content">
                     <div className="card-section small-card">
-                      <ReservationForm />
+                      <ReservationForm
+                        setReservationChanged={setReservationChanged}
+                      />
                     </div>
                     <div className="card-section small-card">
-                      <MyReservations isStaff={isStaff} />
+                      <MyReservations
+                        isStaff={isStaff}
+                        reservationChanged={reservationChanged}
+                      />
                     </div>
                   </div>
                   <aside className="sidebar">

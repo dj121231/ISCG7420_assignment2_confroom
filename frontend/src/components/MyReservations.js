@@ -14,6 +14,7 @@ const MyReservations = ({ isStaff }) => {
     description: "",
   });
   const [filterStatus, setFilterStatus] = useState("all");
+  const [reservationChanged, setReservationChanged] = useState(false);
 
   const fetchReservations = async () => {
     try {
@@ -28,7 +29,8 @@ const MyReservations = ({ isStaff }) => {
 
   useEffect(() => {
     fetchReservations();
-  }, []);
+    // eslint-disable-next-line
+  }, [reservationChanged]);
 
   const handleDelete = async (id) => {
     try {
@@ -92,7 +94,11 @@ const MyReservations = ({ isStaff }) => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axiosInstance.put(`/reservations/${id}/`, { status: newStatus });
+      if (newStatus === "approved") {
+        await axiosInstance.post(`/reservations/${id}/approve/`);
+      } else if (newStatus === "rejected") {
+        await axiosInstance.post(`/reservations/${id}/reject/`);
+      }
       alert(
         `Reservation ${
           newStatus === "approved" ? "approved" : "rejected"
@@ -208,13 +214,15 @@ const MyReservations = ({ isStaff }) => {
                 </div>
               </div>
               <div className="btn-group" style={{ marginTop: "8px" }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleEditClick(res)}
-                  style={{ padding: "6px 12px", fontSize: "0.9rem" }}
-                >
-                  Edit
-                </button>
+                {res.status === "pending" && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleEditClick(res)}
+                    style={{ padding: "6px 12px", fontSize: "0.9rem" }}
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
                   className="btn btn-danger"
                   onClick={() => {

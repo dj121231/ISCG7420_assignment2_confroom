@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Room, Reservation
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,10 +57,11 @@ class ReservationSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    role = serializers.ChoiceField(choices=[('user', 'User'), ('admin', 'Admin')], default='user', write_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = ('username', 'email', 'password', 'password2', 'role')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -66,10 +69,32 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        role = validated_data.pop('role', 'user')
         validated_data.pop('password2')
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-        return user 
+        if role == 'admin':
+            user.is_staff = True
+            user.save()
+        return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims to the token
+        token['username'] = user.username
+        token['is_staff'] = user.is_staff
+        token['is_superuser'] = user.is_superuser
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Add extra responses here
+        data['username'] = self.user.username
+        data['is_staff'] = self.user.is_staff
+        data['is_superuser'] = self.user.is_superuser
+        return data 

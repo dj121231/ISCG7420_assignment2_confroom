@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../axiosInstance";
 
-const ReservationForm = () => {
+const ReservationForm = ({ setReservationChanged }) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,6 +89,9 @@ const ReservationForm = () => {
         start_time: "",
         end_time: "",
       });
+      if (setReservationChanged) {
+        setReservationChanged((prev) => !prev);
+      }
     } catch (err) {
       console.error("Reservation error:", err.response?.data);
       let errMsg = "An error occurred.";

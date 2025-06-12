@@ -8,6 +8,7 @@ const Signup = () => {
     email: "",
     password: "",
     password2: "",
+    role: "user",
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -29,32 +30,53 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8000/api/register/", {
+      await axios.post("http://localhost:8000/api/register/", {
         username: formData.username,
         email: formData.email,
         password: formData.password,
         password2: formData.password2,
+        role: formData.role,
       });
 
-      // After successful registration, log the user in
-      const loginResponse = await axios.post(
-        "http://localhost:8000/api/token/",
-        {
-          username: formData.username,
-          password: formData.password,
+      // Try to log in the user automatically after successful registration
+      try {
+        const loginResponse = await axios.post(
+          "http://localhost:8000/api/token/",
+          {
+            username: formData.username,
+            password: formData.password,
+          }
+        );
+        if (
+          loginResponse.data &&
+          loginResponse.data.access &&
+          loginResponse.data.refresh
+        ) {
+          localStorage.setItem("access", loginResponse.data.access);
+          localStorage.setItem("refresh", loginResponse.data.refresh);
+          navigate("/");
+          window.location.reload(); // Reload to update user context
+        } else {
+          setError(
+            "Registration succeeded, but auto-login failed. Please log in manually."
+          );
         }
-      );
-
-      localStorage.setItem("access", loginResponse.data.access);
-      localStorage.setItem("refresh", loginResponse.data.refresh);
-      navigate("/");
-      window.location.reload(); // Reload to update user context
+      } catch (loginErr) {
+        setError(
+          "Registration succeeded, but auto-login failed. Please log in manually."
+        );
+      }
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.password ||
-          "Registration failed. Please try again."
-      );
+      // Collect all error messages from backend and display them
+      let errorMsg = "Registration failed. Please try again.";
+      if (err.response && err.response.data) {
+        if (typeof err.response.data === "string") {
+          errorMsg = err.response.data;
+        } else if (typeof err.response.data === "object") {
+          errorMsg = Object.values(err.response.data).flat().join(" ");
+        }
+      }
+      setError(errorMsg);
     }
   };
 
@@ -70,6 +92,8 @@ const Signup = () => {
             color: "#c62828",
             fontSize: "0.95rem",
             marginBottom: "12px",
+            wordBreak: "break-all",
+            whiteSpace: "pre-line",
           }}
         >
           {error}
@@ -135,6 +159,22 @@ const Signup = () => {
             required
             placeholder="Confirm your password"
           />
+        </div>
+        <div className="input-row">
+          <label className="label" htmlFor="role">
+            Role
+          </label>
+          <select
+            id="role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="input"
+            required
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
         <div className="btn-group">
           <button type="submit" className="btn btn-primary">

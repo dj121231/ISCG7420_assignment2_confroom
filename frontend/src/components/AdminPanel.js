@@ -27,7 +27,11 @@ const AdminPanel = ({ isStaff }) => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axiosInstance.put(`/reservations/${id}/`, { status: newStatus });
+      if (newStatus === "approved") {
+        await axiosInstance.post(`/reservations/${id}/approve/`);
+      } else if (newStatus === "rejected") {
+        await axiosInstance.post(`/reservations/${id}/reject/`);
+      }
       alert(
         `Reservation ${
           newStatus === "approved" ? "approved" : "rejected"

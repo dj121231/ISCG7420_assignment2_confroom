@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from .models import Room, Reservation
-from .serializers import RoomSerializer, ReservationSerializer, UserSerializer, RegisterSerializer
+from .serializers import RoomSerializer, ReservationSerializer, UserSerializer, RegisterSerializer, CustomTokenObtainPairSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.decorators import action
@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from django.utils import timezone
 from datetime import timedelta, datetime, time
 from rest_framework import serializers
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Create your views here.
 
@@ -122,7 +123,10 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             return Response({
-                "user": UserSerializer(user, context=self.get_serializer_context()).data,
+                "user": UserSerializer(user).data,
                 "message": "User Created Successfully"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
