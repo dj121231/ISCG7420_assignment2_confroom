@@ -1,3 +1,5 @@
+// App.js - Main React application entry point
+// Handles authentication, routing, and layout for the conference room reservation system
 import React, { useEffect, useState } from "react";
 import axiosInstance from "./axiosInstance";
 import CurrentUserInfo from "./components/CurrentUserInfo";
@@ -11,11 +13,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 function App() {
+  // State for user role, loading, and authentication
   const [isStaff, setIsStaff] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
   const [user, setUser] = useState(null);
+  // State to trigger reservation list refresh
   const [reservationChanged, setReservationChanged] = useState(false);
 
+  // On mount, decode JWT token and set user info
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (token) {
@@ -43,7 +48,7 @@ function App() {
 
   if (userLoading) return <div>Loading user info...</div>;
 
-  // Protected Route component
+  // ProtectedRoute: Only render children if user is authenticated
   const ProtectedRoute = ({ children }) => {
     if (!user) {
       return <Navigate to="/login" />;
@@ -53,6 +58,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      {/* Navigation bar */}
       <header className="navbar">
         <div className="navbar-brand">Conference Room Reservation System</div>
         <nav className="navbar-links">
@@ -95,12 +101,14 @@ function App() {
         </nav>
       </header>
 
+      {/* User info bar */}
       {user && (
         <div className="userinfo-bar">
           <CurrentUserInfo user={user} />
         </div>
       )}
 
+      {/* Main content and routing */}
       <main className="main-container">
         <Routes>
           <Route
@@ -117,11 +125,13 @@ function App() {
               <ProtectedRoute>
                 <div className="dashboard">
                   <div className="main-content">
+                    {/* Reservation creation form */}
                     <div className="card-section small-card">
                       <ReservationForm
                         setReservationChanged={setReservationChanged}
                       />
                     </div>
+                    {/* User's reservations list */}
                     <div className="card-section small-card">
                       <MyReservations
                         isStaff={isStaff}
@@ -129,6 +139,7 @@ function App() {
                       />
                     </div>
                   </div>
+                  {/* Sidebar with room list */}
                   <aside className="sidebar">
                     <div className="card-section small-card">
                       <RoomList />
@@ -149,6 +160,7 @@ function App() {
             }
           />
         </Routes>
+        {/* Footer */}
         <footer className="footer">
           © 2025 Unitec - Web Application Assignment
         </footer>

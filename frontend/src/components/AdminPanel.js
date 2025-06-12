@@ -1,11 +1,14 @@
+// AdminPanel.js - Admin interface for managing pending reservations
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../axiosInstance";
 
 const AdminPanel = ({ isStaff }) => {
+  // State for reservations, loading, and error
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch pending reservations when component mounts or isStaff changes
   useEffect(() => {
     if (isStaff) {
       fetchReservations();
@@ -13,6 +16,7 @@ const AdminPanel = ({ isStaff }) => {
     // eslint-disable-next-line
   }, [isStaff]);
 
+  // Fetch all pending reservations
   const fetchReservations = async () => {
     setLoading(true);
     try {
@@ -25,6 +29,7 @@ const AdminPanel = ({ isStaff }) => {
     }
   };
 
+  // Handle approve/reject actions (admin only)
   const handleStatusChange = async (id, newStatus) => {
     try {
       if (newStatus === "approved") {
@@ -43,6 +48,7 @@ const AdminPanel = ({ isStaff }) => {
     }
   };
 
+  // Only admins can view this panel
   if (!isStaff) {
     return (
       <div style={{ color: "red", fontWeight: 600 }}>
@@ -69,6 +75,7 @@ const AdminPanel = ({ isStaff }) => {
               borderRadius: "4px",
             }}
           >
+            {/* Reservation details */}
             <div>
               <strong>Title:</strong> {res.title}
             </div>
@@ -87,6 +94,7 @@ const AdminPanel = ({ isStaff }) => {
             <div>
               <strong>User:</strong> {res.user_name || res.user}
             </div>
+            {/* Approve/Reject buttons */}
             <div style={{ marginTop: "10px" }}>
               <button
                 onClick={() => handleStatusChange(res.id, "approved")}
