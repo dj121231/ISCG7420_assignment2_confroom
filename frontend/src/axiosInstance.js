@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an axios instance with base URL for the backend API
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
@@ -39,9 +39,7 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh");
         if (refreshToken) {
           const response = await axios.post(
-            process.env.REACT_APP_API_URL
-              ? process.env.REACT_APP_API_URL + "/token/refresh/"
-              : "http://localhost:8000/api/token/refresh/",
+            process.env.REACT_APP_API_URL + "/token/refresh/",
             { refresh: refreshToken },
             { headers: { "Content-Type": "application/json" } }
           );
