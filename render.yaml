@@ -1,0 +1,16 @@
+---
+services:
+  - type: web
+    name: django-backend
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn conference.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        value: your-secret-key
+      - key: DATABASE_URL
+        value: your-postgresql-connection-url
+      - key: DEBUG
+        value: "False"
+---
+

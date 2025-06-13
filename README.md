@@ -147,6 +147,35 @@ The frontend will run at [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## 🚀 Deployment on Render
+
+Before deploying to Render, please confirm the following:
+
+- **requirements.txt** (updated) – gunicorn is included (run: pip install gunicorn && pip freeze > requirements.txt).
+- **render.yaml** – A new file (render.yaml) has been created in the project root with the following content (adjust envVars as needed):
+
+```yaml
+---
+services:
+  - type: web
+    name: django-backend
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn conference.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        value: your-secret-key
+      - key: DATABASE_URL
+        value: your-postgresql-connection-url
+      - key: DEBUG
+        value: "False"
+---
+```
+
+- **manage.py** – Confirmed to exist at the project root.
+
+---
+
 ## 👤 Credits
 
 **Author:** Dongju Kim (Unitec student)
