@@ -19,7 +19,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 # Allow all hosts (for development)
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "iscg7420-assignment2-confroom.onrender.com"
+]
 
 # Allow all CORS origins (for frontend-backend communication)
 CORS_ALLOW_ALL_ORIGINS = True
