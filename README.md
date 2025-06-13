@@ -173,6 +173,7 @@ services:
 ```
 
 - **manage.py** – Confirmed to exist at the project root.
+- **runtime.txt** – A new file (runtime.txt) has been created at the project root with the content "python-3.10.13".
 
 ---
 
