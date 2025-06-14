@@ -130,3 +130,11 @@ class RegisterView(APIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class MyReservationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        reservations = Reservation.objects.filter(user=request.user)
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(serializer.data)

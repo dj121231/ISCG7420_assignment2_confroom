@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RoomViewSet, ReservationViewSet, UserViewSet, get_reserved_times, get_available_dates, CurrentUserView, RegisterView, CustomTokenObtainPairView
+from .views import RoomViewSet, ReservationViewSet, UserViewSet, get_reserved_times, get_available_dates, CurrentUserView, RegisterView, CustomTokenObtainPairView, MyReservationsView
 
 router = DefaultRouter()
 router.register(r'rooms', RoomViewSet, basename='room')
@@ -14,4 +14,5 @@ urlpatterns = [
     path('me/', CurrentUserView.as_view(), name='current-user'),
     path('register/', RegisterView.as_view(), name='register'),
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('my-reservations/', MyReservationsView.as_view(), name='my-reservations'),
 ] 
