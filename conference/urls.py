@@ -48,8 +48,9 @@ def root_view(request):
     return HttpResponse(html)
 
 urlpatterns = [
-    path('', root_view),  # Root endpoint returns a simple welcome message
-    path('admin/', admin.site.urls),  # Django admin panel
-    path('api/', include('reservation.urls')),  # Reservation API routes
-    
+    path('', root_view),
+    path('admin/', admin.site.urls),
+    path('api/', include('reservation.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
