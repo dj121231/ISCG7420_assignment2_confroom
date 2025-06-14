@@ -9,9 +9,9 @@ router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api/reserved-times/', get_reserved_times.as_view(), name='get_reserved_times'),
-    path('api/available-dates/', get_available_dates.as_view(), name='get_available_dates'),
+    path('reserved-times/', get_reserved_times.as_view(), name='get_reserved_times'),
+    path('available-dates/', get_available_dates.as_view(), name='get_available_dates'),
     path('me/', CurrentUserView.as_view(), name='current-user'),
     path('register/', RegisterView.as_view(), name='register'),
-    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
 ] 
