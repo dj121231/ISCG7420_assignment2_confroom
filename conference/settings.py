@@ -22,7 +22,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "iscg7420-assignment2-confroom.onrender.com"
+    "django-backend-0pfw.onrender.com"
 ]
 
 # Allow all CORS origins (for frontend-backend communication)
