@@ -30,7 +30,7 @@ const Signup = () => {
     }
 
     try {
-      await axios.post("http://localhost:8000/api/register/", {
+      await axios.post("/api/register/", {
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -40,13 +40,10 @@ const Signup = () => {
 
       // Try to log in the user automatically after successful registration
       try {
-        const loginResponse = await axios.post(
-          "http://localhost:8000/api/token/",
-          {
-            username: formData.username,
-            password: formData.password,
-          }
-        );
+        const loginResponse = await axios.post("/api/token/", {
+          username: formData.username,
+          password: formData.password,
+        });
         if (
           loginResponse.data &&
           loginResponse.data.access &&

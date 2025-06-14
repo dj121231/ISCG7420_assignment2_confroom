@@ -21,7 +21,7 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
+      const response = await axios.post("/api/token/", {
         username: formData.username,
         password: formData.password,
       });
